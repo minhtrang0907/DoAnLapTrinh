@@ -1,303 +1,169 @@
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<sstream>
-#include<cstdlib>
-#include<iomanip>
+// ================================================================
+//  De tai 04: Quan ly muon tra sach thu vien
+//  Yeu cau: Su dung vector<> de quan ly sach
+//  Gom 4 class: Sach, SachMuonVe, SachMuonDoc, ThuVien
+//  Bien dich: g++ -std=c++11 QuanLyThuVien_Vector_4Class.cpp -o ThuVien
+// ================================================================
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <cstdlib>
 using namespace std;
-struct Date
-    {
-        int date, month, year;
-    };
-struct Clock
-    {
-        int hour, min, sec;
-    };
-class Book
-{
-    protected:
-        string Code;
-        string Name;
-        string Topic;
-        string Author;
-        string Producer;
-        Date Time;
-        int PageNumber;
-        int NumberArchive;
-    public:
-        Book (string c="", string n="", string t="", string a="", string b="", Date x, int p=0, int na=0)
-        {
-            x.date =0;x.month=0;x.year=0;
-            Code=c; Name=n; Topic=t; Author=a; Producer=b; Time=x; PageNumber=p; NumberArchive=na;
-        }
-        void input()
-        {
-            
-            //cout<<"Ma so sach: ";
-            cin>>Code;
-            //cout<<"\nTen sach: ";
-            cin.ignore();
-            getline(cin,Name);
-            //cout<<"\nChu de: ";
-            getline(cin,Topic);
-            //cout<<"\nTen tac gia: ";
-            getline(cin,Author);
-            //cout<<"\nNha xuat ban: ";
-            getline(cin,Producer);
-            //cout<<"\nNgay - Thang - Nam xuat ban: ";
-            cin>>Time.date>>Time.month>>Time.year;
-            //cout<<"\n So trang: ";
-            cin>>PageNumber;
-            //cout<<"\nSo ban luu thu vien: ";
-            cin>>NumberArchive;
-        }
-        void output()
-        {
-            cout<<setw(14)<<left<<Code<<"|"
-                <<setw(24)<<left<<Name<<"|"
-                <<setw(24)<<left<<Topic<<"|"
-                <<setw(19)<<left<<Author<<"|"
-                <<setw(24)<<left<<Producer<<"|"
-                <<setw(2)<<Time.date<<"/"<<setw(2)<<Time.month<<"/"<<setw(23)<<Time.year<<"|"
-                <<setw(19)<<PageNumber<<"|"
-                <<setw(19)<<NumberArchive<<"|"<<'\n';
-            cout<<"+---+--------------+------------------------+------------------------+-------------------+------------------------+-----------------------------+-------------------+-------------------+\n";
-        }
-        void InputBooks(int k)
-        {
-            //cout<<"Nhap so sach nhap vao: ";
-            cin>>k;
-            NumberArchive+=k;
-        }
-        void OutputBooks(int q)
-        {
-            cout<<"Nhap so sach xuat ra: ";cin>>q;
-            if(NumberArchive < q) cout<<"Khong du sach de xuat";
-            else NumberArchive-=q;
-        }
-        
-};
-bool operator>(Date a, Date b)
-{
-    if (a.date > b.date && a.month == b.month && a.year == b.year) return true;
-    if (a.year > b.year) return true;
-    if (a.month > b.month && a.year == b.year) return true;
-    return false;
-}
-bool operator>(Clock a, Clock b)
-{
-    if(a.hour > b.hour) return true;
-    if(a.hour == b.hour && a.min > b.min) return true;
-    if(a.hour == b.hour && a.min == b.min && a.sec > b.sec) return true;
-    return false;
-}
-class BookToHome:virtual public Book
-{
-    protected:
-        Date BDate, RDate;
-    public:
-        void input()
-        {
-            Book::input();
-            //cout<<"Nhap ngay - thang - nam muon: ";
-            cin>>BDate.date>>BDate.month>>BDate.year;
-            //cout<<"Nhap ngay - thang - nam tra: ";
-            cin>>RDate.date>>RDate.month>>RDate.year;
-        }
-        void output()
-        {
-            Book::output();
-            cout<<"Ngay muon: "<<BDate.date<<"/"<<BDate.month<<"/"<<BDate.year;
-            cout<<"Ngay tra: "<<RDate.date<<"/"<<RDate.month<<"/"<<RDate.year;
-        }
-        bool OutDate()
-        {
-            Date H;
-            H.date = BDate.date + 7;
-            H.month = BDate.month;
-            H.year = BDate.year;
-            if (H.date > 31) H.date -= 31;
-            if(RDate > H) return true;
-        }
-
-
-};
-class BookToRead:virtual public Book
-{
-    protected:  
-        Clock BTime, RTime;
-    public:
-        void input()
-        {
-            Book::input();
-            //cout<<"Nhap gio muon: ";
-            cin>>BTime.hour>>BTime.min>>BTime.sec;
-            //cout<<"Nhap gio tra: ";
-            cin>>RTime.hour>>RTime.min>>RTime.sec;
-        }
-        void output()
-        {
-            Book::output();
-            cout<<"Gio muon: "<<BTime.hour<<":"<<BTime.min<<":"<<BTime.sec;
-            cout<<"Gio tra: "<<RTime.hour<<":"<<RTime.min<<":"<<RTime.sec;
-        }
-        bool OutTime()
-        {
-            Clock H;
-            H.hour = BTime.hour + 2;
-            H.min = BTime.min;
-            H.sec = BTime.sec;
-            if(RTime > H) return true;
-            return false;
-        }
+//TRANG
+// ================================================================
+//  CLASS CO SO: Sach
+// ================================================================
+class Sach {
+protected:
+    string maSach;
+    string tenSach;
+    string chuDe;
+    string tacGia;
+    string nhaXuatBan;
+    string ngayThangNamXuatBan;
+    int soTrang;
+    int soBanLuuThuVien;
+public:
     
-};  
-class Library:public BookToRead,public BookToHome
-{
-    private:
-        Book *s;
-        int total;
-    public:
-        void addbook()
-        {
-            cout<<"Them sach:\n";
-            int select;
-            cout<<"1.Sach Muon ve\n";
-            cout<<"2.Sach muon doc\n";
-            cin>>select;
-            if(select == 1)
-                s= new BookToHome();
-            else s=new BookToRead();
-            int n;
-            cout<<"Nhap so sach them vao: "; cin>>n;
-            for (int i=0;i<n;i++)
-                s[i].input();
-            total+=n;
-            cout<<"Them thanh cong!";//thieu them vao danh sach
-        }
-        void deletebook()
-        {
-            int select;
-            cout<<"Xoa sach:\n";
-            cout<<"1.Sach Muon ve\n";
-            cout<<"2.Sach muon doc\n";
-            cin>>select;
-            if(select == 1)
-                s= new BookToHome();
-            else s=new BookToRead();
-            int n;
-            cout<<"Nhap so sach xoa vao: "; cin>>n;
-            for (int i=0;i<n;i++)
-                s[i].input();
-            total-=n;
-            cout<<"Xoa thanh cong!";//thieu xoa trong danh sach
-        }
-        void display()
-        {
-            cout<<"===========================Danh sach hien thi============================================\n";
-            cout<<"+---+--------------+------------------------+------------------------+-------------------+------------------------+-----------------------------+-------------------+-------------------+\n";
-            Book::output();
-
-        }
-        void fixbook()
-        {
-
-        }
-        
-        void Static()
-        {
-            cout<<"So luong sach trong thu vien: "<<total;
-           // cout<<"So luong sach dang muon ve: "<<
-        }
-        void ReadFile()
-        {
-            freopen("input1.txt","r",stdin);
-            int k;
-            cin>>k;
-            Book s[k];
-            for(int i=0;i<k;i++)
-                s[i].input();
-            
-            freopen("output1.txt","w",stdout);
-            cout<<"=======Danh sach hien thi=============\n";
-            cout<<setw(5)<<"|STT|"
-                <<setw(15)<<"Ma so sach   |"
-                <<setw(25)<<"Ten sach       |"
-                <<setw(25)<<"Chu de         |"
-                <<setw(20)<<"Ten tac gia    |"
-                <<setw(25)<<"Nha xuat ban       |"
-                <<setw(30)<<"Ngay-thang-nam xuat ban   |"
-                <<setw(20)<<"So trang  |"
-                <<setw(20)<<"So ban sao luu  |"<<endl;
-            cout<<"+---+--------------+------------------------+------------------------+-------------------+------------------------+-----------------------------+-------------------+-------------------+\n";
-            for (int i=0;i<k;i++)
-            {
-                cout<<"|"<<setw(3)<<left<<i+1<<"|";s[i].output();
-            }
-        }
-        
-        
 };
-void ReadfromFile(char *filename, Book S[], int &count)
-{
-    ifstream file(filename);
-    if(!file)
-    {
-        cout<<"Khong the mo tep!"<<filename<<endl;
-        cout<<"Khoi tao du lieu mau..."<<endl;//
 
-    }
-    count=0;
-    string line;
-    while(getline(file,line))
+// ===============================================================================================================================
+// TRANG
+//  CLASS DAN XUAT: SachMuonVe
+// ================================================================
+class SachMuonVe : public Sach {
+    
+};
+
+// ===============================================================================================================================
+// QUANH
+// ================================================================
+//  CLASS DAN XUAT: SachMuonDoc
+// ================================================================
+class SachMuonDoc : public Sach {
+private:
+    string gioMuon;
+    string gioTra;
+
+public:
+    // ham thiet lap co tham so ngam dinh
+    SachMuonDoc(string ma = "", string ten = "", string cd = "", string tg = "",
+                string nxb = "", string ngayXB = "", int trang = 0, int ban = 0,
+                string gioM = "", string gioT = "") : Sach(ma, ten, cd, tg, nxb, ngayXB, trang, ban) 
     {
-        stringstream ss(line);
-        string Code,Name,Topic,Author,NXB;
-        int Page,Archive;
-        Date Time;
-        getline(ss,Code,'|');
-        getline(ss,Name,'|');
-        getline(ss,Topic,'|');
-        getline(ss,Author,'|');
-        getline(ss,NXB,'|');
-        ss>>Time.date;ss.ignore();
-        ss>>Time.month;ss.ignore();
-        ss>>Time.year;ss.ignore();
-        ss>>Page;ss.ignore();
-        ss>>Archive;
-        S[count] = Book(Code, Name, Topic, Author, NXB, Time, Page, Archive);
-        count++;
+        gioMuon = gioM;
+        gioTra = gioT;
     }
-    file.close();
+
+    string getLoaiSach() { return "Muon doc"; }
+    void nhap();
+    void xuat();
+    string chuyenChuoi();
+    bool quaHan();
+};
+
+void SachMuonDoc::nhap() {
+    Sach::nhap();
+    cout << "Nhap gio muon doc (hh:mm): "; cin >> ws;
+    getline(cin, gioMuon);
+    cout << "Nhap gio tra (hh:mm): ";
+    getline(cin, gioTra);
 }
-void menu()
-{
-    cout << "\n============= QUAN LY THU VIEN =============\n";
 
-    cout << "1. Hien thi danh sach\n";
-    cout << "2. Them sach\n";
-    cout << "3. Tim theo ma\n";
-    cout << "4. Tim theo ten\n";
-    cout << "5. Tim theo nha xuat ban\n";
-    cout << "6. Thong ke\n";
-    cout << "7. Xoa sach\n";
-    cout << "8. Ghi file\n";
-    cout << "0. Thoat\n";
+void SachMuonDoc::xuat() {
+    Sach::xuat();
+    cout << left;
+    cout << "| " << setw(10) << "D";
+    cout << "| " << setw(12) << "";
+    cout << "| " << setw(12) << "";
+    cout << "| " << setw(10) << gioMuon;
+    cout << "| " << setw(10) << gioTra;
+    cout << "| " << endl;
 }
-int k;
 
-int main()
-{
-    int chon;
-    Book TV[100];
-    menu();
-    int count=0;
-    ReadfromFile("input.txt",TV,count);
-    cout<<"Nhap lua chon: ";cin>>chon;
-    switch(chon)
-    {
-        case(1):
-            
-            break;
+string SachMuonDoc::chuyenChuoi() {
+    stringstream ss;
+    ss << "D|" << maSach << "|" << tenSach << "|" << chuDe << "|" << tacGia << "|"
+       << nhaXuatBan << "|" << ngayXuatBan << "|" << soTrang << "|" << soBanLuu
+       << "|" << gioMuon << "|" << gioTra;
+    return ss.str();
+}
+
+bool SachMuonDoc::quaHan() {
+    int phutTra = stoi(gioTra.substr(0, 2)) * 60 + stoi(gioTra.substr(3, 2));
+    int phutMuon = stoi(gioMuon.substr(0,2)) * 60 + stoi(gioMuon.substr(3,2));
+    //cout << "Nhap gio hien tai de kiem tra qua gio (hh:mm): "; cin >> ws;
+    return (phutMuon - phutTra) > 240 ;
+}
+// ===============================================================================================================================
+// THU + HIEN
+//  CLASS QUAN LY: ThuVien
+// ================================================================
+class ThuVien {
+private:
+    vector<Sach*> dsSach;
+
+public:
+    void thongKe() {} // HIEN
+    void themSach() {} // HIEN
+    void xoaSach() {} // HIEN
+    void timKiemMa() {} // THU
+    void timKiemTen() {} // THU
+    void timKiemNXB() {} // THU
+    void Menu() {} // THU
+    void dieuHuong() {} // THU
+};
+// ===================================================================================================================================
+//  HIEN
+//  CLASS GIAO DIEN (Ve bang)  //
+// ================================================================
+
+class GiaoDien {
+public:
+    static void duongKeVe(ostream& os) { os << "  +----------+-------------------------+---------------+-----+------------------+------------+------------+-------------+\n"; }
+    static void duongKeDoc(ostream& os) { os << "  +----------+-------------------------+---------------+-----+----------+----------+----------------------+\n"; 
     }
+    
+    static void tieuDeVe(ostream& os) {
+        os << "\n  +-----------------------------------------------------------------------------------------------------------------------+\n"
+           << "  |                                        DANH SACH MUON VE                                                              |\n";
+        duongKeVe(os);
+        os << left << "  | " << setw(9) << "Ma sach" << "| " << setw(24) << "Ten sach" << "| " << setw(14) << "Nha xuat ban" 
+           << "| " << setw(4) << "SL" << "| " << setw(17) << "Nguoi muon" << "| " << setw(11) << "Ngay muon" 
+           << "| " << setw(11) << "Ngay tra" << "| " << setw(12) << "Trang thai" << "|\n";
+        duongKeVe(os);
+    }
+
+    static void tieuDeDoc(ostream& os) {
+        os << "\n  +-------------------------------------------------------------------------------------------------------+\n"
+           << "  |                                        DANH SACH MUON DOC                                             |\n";
+        duongKeDoc(os);
+        os << left << "  | " << setw(9) << "Ma sach" << "| " << setw(24) << "Ten sach" << "| " << setw(14) << "Nha xuat ban" 
+           << "| " << setw(4) << "SL" << "| " << setw(9) << "Gio muon" << "| " << setw(9) << "Gio tra" 
+           << "| " << setw(21) << "Trang thai/Thoi gian" << "|\n";
+        duongKeDoc(os);
+    }
+
+    static void xuatBang(ostream& os, const vector<Sach*>& ds) {
+        tieuDeVe(os); bool coVe = false;
+        for (const Sach* s : ds) if (s->getLoai() == 'V') { s->xuatDong(os); duongKeVe(os); coVe = true; }
+        if (!coVe) { os << "  | " << left << setw(116) << "Khong co sach muon ve" << "|\n"; duongKeVe(os); }
+
+        tieuDeDoc(os); bool coDoc = false;
+        for (const Sach* s : ds) if (s->getLoai() == 'D') { s->xuatDong(os); duongKeDoc(os); coDoc = true; }
+        if (!coDoc) { os << "  | " << left << setw(102) << "Khong co sach muon doc" << "|\n"; duongKeDoc(os); }
+    }
+};
+
+
+    
+// ================================================================
+//  HAM MAIN
+// ================================================================
+int main() {
+    
 }
