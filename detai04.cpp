@@ -17,28 +17,14 @@ using namespace std;
 // ================================================================
 //  CLASS CO SO: Sach
 // ================================================================
-class Sach {
-protected:
-    string maSach;
-    string tenSach;
-    string chuDe;
-    string tacGia;
-    string nhaXuatBan;
-    string ngayThangNamXuatBan;
-    int soTrang;
-    int soBanLuuThuVien;
-public:
-    
-};
+class Sach {};
 
 // ===============================================================================================================================
 // TRANG
 //  CLASS DAN XUAT: SachMuonVe
 // ================================================================
-class SachMuonVe : public Sach {
-    
-};
-hgcgvkbnkn
+class SachMuonVe : public Sach {};
+
 // ===============================================================================================================================
 // QUANH
 // ================================================================
