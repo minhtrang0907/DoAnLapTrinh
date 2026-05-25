@@ -36,11 +36,10 @@ private:
     string gioTra;
 
 public:
-    // ham thiet lap co tham so ngam dinh
     SachMuonDoc(string ma = "", string ten = "", string cd = "", string tg = "",
                 string nxb = "", string ngayXB = "", int trang = 0, int ban = 0,
-                string gioM = "", string gioT = "") : Sach(ma, ten, cd, tg, nxb, ngayXB, trang, ban) 
-    {
+                string gioM = "", string gioT = "")
+        : Sach(ma, ten, cd, tg, nxb, ngayXB, trang, ban) {
         gioMuon = gioM;
         gioTra = gioT;
     }
@@ -48,8 +47,15 @@ public:
     string getLoaiSach() { return "Muon doc"; }
     void nhap();
     void xuat();
-    string chuyenChuoi();
     bool quaHan();
+
+    // 2 ham doc/ghi file co trong class SachMuonDoc
+    void docFile(string dong);
+    string ghiFile();
+
+    string chuyenChuoi() {
+        return ghiFile();
+    }
 };
 
 void SachMuonDoc::nhap() {
@@ -71,20 +77,45 @@ void SachMuonDoc::xuat() {
     cout << "| " << endl;
 }
 
-string SachMuonDoc::chuyenChuoi() {
+// Doc day du thong tin cua SachMuonDoc tu file
+void SachMuonDoc::docFile(string dong) {
+    Sach::docFile(dong);
+
+    stringstream ss(dong);
+    string boQua, trangStr, banStr;
+
+    getline(ss, boQua, '|');      // loai
+    getline(ss, boQua, '|');      // ma
+    getline(ss, boQua, '|');      // ten
+    getline(ss, boQua, '|');      // chu de
+    getline(ss, boQua, '|');      // tac gia
+    getline(ss, boQua, '|');      // nha xuat ban
+    getline(ss, boQua, '|');      // ngay xuat ban
+    getline(ss, trangStr, '|');   // so trang
+    getline(ss, banStr, '|');     // so ban luu
+    getline(ss, gioMuon, '|');
+    getline(ss, gioTra, '|');
+}
+
+// Ghi day du thong tin cua SachMuonDoc ra file
+string SachMuonDoc::ghiFile() {
     stringstream ss;
-    ss << "D|" << maSach << "|" << tenSach << "|" << chuDe << "|" << tacGia << "|"
-       << nhaXuatBan << "|" << ngayXuatBan << "|" << soTrang << "|" << soBanLuu
-       << "|" << gioMuon << "|" << gioTra;
+    ss << "D|" << Sach::ghiFile() << "|" << gioMuon << "|" << gioTra;
     return ss.str();
 }
 
 bool SachMuonDoc::quaHan() {
-    int phutTra = stoi(gioTra.substr(0, 2)) * 60 + stoi(gioTra.substr(3, 2));
-    int phutMuon = stoi(gioMuon.substr(0,2)) * 60 + stoi(gioMuon.substr(3,2));
-    //cout << "Nhap gio hien tai de kiem tra qua gio (hh:mm): "; cin >> ws;
-    return (phutMuon - phutTra) > 240 ;
+    if (gioMuon.length() < 5 || gioTra.length() < 5) return false;
+
+    int phutMuon = atoi(gioMuon.substr(0, 2).c_str()) * 60
+                 + atoi(gioMuon.substr(3, 2).c_str());
+    int phutTra = atoi(gioTra.substr(0, 2).c_str()) * 60
+                + atoi(gioTra.substr(3, 2).c_str());
+
+    // Gia su muon doc qua 240 phut la qua gio
+    return (phutTra - phutMuon) > 240;
 }
+
 // ===============================================================================================================================
 // THU + HIEN
 //  CLASS QUAN LY: ThuVien
