@@ -17,13 +17,146 @@ using namespace std;
 // ================================================================
 //  CLASS CO SO: Sach
 // ================================================================
-class Sach {};
+class Sach {
+protected:
+    string maSach;
+    string tenSach;
+    string chuDe;
+    string tacGia;
+    string nhaXuatBan;
+    int    namXuatBan;
+    int    soTrang;
+    int    soBanLuu;
+
+public:
+    // Constructor mac dinh
+    Sach() : namXuatBan(0), soTrang(0), soBanLuu(0) {}
+
+    // Constructor co tham so
+    Sach(const string& ma, const string& ten, const string& chu,
+         const string& tac, const string& nxb,
+         int nam, int trang, int banLuu)
+        : maSach(ma), tenSach(ten), chuDe(chu), tacGia(tac),
+          nhaXuatBan(nxb), namXuatBan(nam), soTrang(trang), soBanLuu(banLuu) {}
+
+    // Destructor ao (bat buoc khi co ke thua)
+    virtual ~Sach() {}
+
+    // ---------- Getter ----------
+    string getMaSach()     const { return maSach; }
+    string getTenSach()    const { return tenSach; }
+    string getChuDe()      const { return chuDe; }
+    string getTacGia()     const { return tacGia; }
+    string getNhaXuatBan() const { return nhaXuatBan; }
+    int    getNamXuatBan() const { return namXuatBan; }
+    int    getSoTrang()    const { return soTrang; }
+    int    getSoBanLuu()   const { return soBanLuu; }
+
+    // ---------- Setter ----------
+    void setTenSach(const string& s)    { tenSach = s; }
+    void setChuDe(const string& s)      { chuDe = s; }
+    void setTacGia(const string& s)     { tacGia = s; }
+    void setNhaXuatBan(const string& s) { nhaXuatBan = s; }
+    void setNamXuatBan(int n)           { namXuatBan = n; }
+    void setSoTrang(int n)              { soTrang = n; }
+    void setSoBanLuu(int n)             { soBanLuu = n; }
+
+    // ---------- Ham thuan ao (pure virtual) ----------
+    // Tra ve ky hieu loai sach: 'V' hoac 'D'
+    virtual char getLoai() const = 0;
+
+    // Xuat 1 dong trong bang ra man hinh
+    virtual void xuatThongTin() const = 0;
+
+    // Ghi 1 dong ra file van ban
+    virtual string ghiRaFile() const = 0;
+
+    // Doc 1 dong tu file van ban
+    virtual void docTuFile(const string& dong) = 0;
+
+    // ---------- Ham nhap thong tin chung (co the override) ----------
+    virtual void nhapThongTin() {
+        cout << "  Ma sach    : "; getline(cin, maSach);
+        cout << "  Ten sach   : "; getline(cin, tenSach);
+        cout << "  Chu de     : "; getline(cin, chuDe);
+        cout << "  Tac gia    : "; getline(cin, tacGia);
+        cout << "  Nha XB     : "; getline(cin, nhaXuatBan);
+        cout << "  Nam XB     : "; cin >> namXuatBan;
+        cout << "  So trang   : "; cin >> soTrang;
+        cout << "  So ban luu : "; cin >> soBanLuu;
+        cin.ignore();
+    }
+
+    // Kiem tra trung ma sach
+    bool trungMa(const string& ma) const { return maSach == ma; }
+};
 
 // ===============================================================================================================================
 // TRANG
 //  CLASS DAN XUAT: SachMuonVe
 // ================================================================
-class SachMuonVe : public Sach {};
+class SachMuonVe : public Sach {
+private:
+    string ngayMuon;       // Dinh dang: dd/mm/yyyy
+    string ngayHenTra;     // Dinh dang: dd/mm/yyyy
+    string tenNguoiMuon;
+
+    // Ham noi bo: chuyen "dd/mm/yyyy" -> so nguyen de so sanh ngay
+    long ngayToSo(const string& ngay) const {
+        if (ngay.size() < 10) return 0;
+        int d = stoi(ngay.substr(0, 2));
+        int m = stoi(ngay.substr(3, 2));
+        int y = stoi(ngay.substr(6, 4));
+        return (long)y * 10000 + m * 100 + d;
+    }
+
+public:
+    // Constructor mac dinh
+    SachMuonVe() {}
+
+    // Constructor co tham so
+    SachMuonVe(const string& ma, const string& ten, const string& chu,
+                    const string& tac, const string& nxb,
+                    int nam, int trang, int banLuu,
+                    const string& ngMuon, const string& ngHenTra,
+                    const string& nguoi)
+        : Sach(ma, ten, chu, tac, nxb, nam, trang, banLuu),
+          ngayMuon(ngMuon), ngayHenTra(ngHenTra), tenNguoiMuon(nguoi) {}
+
+    // ---------- Getter rieng ----------
+    char   getLoai()         const override { return 'V'; }
+    string getNgayMuon()     const { return ngayMuon; }
+    string getNgayHenTra()   const { return ngayHenTra; }
+    string getTenNguoiMuon() const { return tenNguoiMuon; }
+
+    // ---------- Kiem tra qua han ----------
+    // Tra ve true neu ngayHomNay > ngayHenTra
+    bool isQuaHan(const string& ngayHomNay) const {
+        return ngayToSo(ngayHomNay) > ngayToSo(ngayHenTra);
+    }
+
+    // ---------- Nhap thong tin ----------
+    void nhapThongTin() override {
+        Sach::nhapThongTin();   // nhap 8 truong chung truoc
+        cout << "  Ten nguoi muon           : "; getline(cin, tenNguoiMuon);
+        cout << "  Ngay muon  (dd/mm/yyyy)  : "; getline(cin, ngayMuon);
+        cout << "  Ngay hen tra (dd/mm/yyyy): "; getline(cin, ngayHenTra);
+    }
+
+    // ---------- Xuat 1 dong bang (goi tu ThuVien) ----------
+    void xuatThongTin() const override { xuatDong(0); }
+
+    void xuatDong(int stt) const {
+        // Do rong tung cot
+        int w[] = {3, 6, 22, 12, 16, 18, 4, 5, 7, 16, 10, 10};
+
+        // Ham cat chuoi neu qua dai
+        auto cut = [](const string& s, int maxW) -> string {
+            return (s.size() > (size_t)maxW) ? s.substr(0, maxW - 2) + ".." : s;
+        };
+        auto o = [&](const string& s, int w) {
+            cout << "| " << left << setw(w) << cut(s, w) << " ";
+        };
 
 // ===============================================================================================================================
 // QUANH
